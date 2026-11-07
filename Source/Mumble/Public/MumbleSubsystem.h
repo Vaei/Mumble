@@ -8,6 +8,7 @@
 
 class USoundBase;
 class UMumbleVoice;
+class UMetaSoundSourceBuilder;
 
 /** Holds what every Mumble component shares: the MetaSound to voice with, when none is given. */
 UCLASS()
@@ -23,6 +24,15 @@ public:
 
 	/** The project's default voice, if it has one */
 	UMumbleVoice* GetDefaultVoice();
+
+	/** Forgets the default sound, so a changed Default Sound setting is picked up by the next line */
+	void ResetDefaultSound() { DefaultSound = nullptr; bBuildFailed = false; }
+
+	/**
+	 * A builder holding the default voice graph: a "Mumble Stream" Int32 input wired through a Mumble
+	 * Voice node to the mono output. Null on failure, which is logged.
+	 */
+	static UMetaSoundSourceBuilder* CreateVoiceGraph(FName BuilderName);
 
 private:
 	USoundBase* BuildDefaultSound();

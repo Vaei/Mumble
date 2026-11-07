@@ -60,14 +60,14 @@ UMumbleVoice* UMumbleSubsystem::GetDefaultVoice()
 	return DefaultVoice;
 }
 
-USoundBase* UMumbleSubsystem::BuildDefaultSound()
+UMetaSoundSourceBuilder* UMumbleSubsystem::CreateVoiceGraph(FName BuilderName)
 {
-	TRACE_CPUPROFILER_EVENT_SCOPE(MumbleSubsystem::BuildDefaultSound);
+	TRACE_CPUPROFILER_EVENT_SCOPE(MumbleSubsystem::CreateVoiceGraph);
 
 	UMetaSoundBuilderSubsystem* Builders = UMetaSoundBuilderSubsystem::Get();
 	if (!Builders)
 	{
-		UE_LOG(LogMumble, Error, TEXT("No MetaSound builder subsystem; Mumble cannot build its default voice."));
+		UE_LOG(LogMumble, Error, TEXT("No MetaSound builder subsystem; Mumble cannot build its voice graph."));
 		return nullptr;
 	}
 
@@ -76,11 +76,11 @@ USoundBase* UMumbleSubsystem::BuildDefaultSound()
 	TArray<FMetaSoundBuilderNodeInputHandle> AudioOuts;
 	EMetaSoundBuilderResult Result = EMetaSoundBuilderResult::Failed;
 
-	UMetaSoundSourceBuilder* Builder = Builders->CreateSourceBuilder(TEXT("MumbleDefaultVoice"), OnPlay, OnFinished, AudioOuts,
+	UMetaSoundSourceBuilder* Builder = Builders->CreateSourceBuilder(BuilderName, OnPlay, OnFinished, AudioOuts,
 		Result, EMetaSoundOutputAudioFormat::Mono, false);
 	if (!Builder || Result != EMetaSoundBuilderResult::Succeeded || AudioOuts.Num() == 0)
 	{
-		UE_LOG(LogMumble, Error, TEXT("Could not create a MetaSound source builder for the default voice."));
+		UE_LOG(LogMumble, Error, TEXT("Could not create a MetaSound source builder for the voice graph."));
 		return nullptr;
 	}
 
@@ -89,7 +89,7 @@ USoundBase* UMumbleSubsystem::BuildDefaultSound()
 	const FMetaSoundBuilderNodeOutputHandle StreamInput = Builder->AddGraphInputNode(MumbleStreams::ParameterName(), TEXT("Int32"), NoStream, Result);
 	if (Result != EMetaSoundBuilderResult::Succeeded)
 	{
-		UE_LOG(LogMumble, Error, TEXT("Could not add the \"%s\" input to the default voice."), *MumbleStreams::ParameterName().ToString());
+		UE_LOG(LogMumble, Error, TEXT("Could not add the \"%s\" input to the voice graph."), *MumbleStreams::ParameterName().ToString());
 		return nullptr;
 	}
 
@@ -105,7 +105,20 @@ USoundBase* UMumbleSubsystem::BuildDefaultSound()
 	Builder->ConnectNodes(Builder->FindNodeOutputByName(Voice, TEXT("Audio"), Result), AudioOuts[0], Result);
 	if (!bInputConnected || Result != EMetaSoundBuilderResult::Succeeded)
 	{
-		UE_LOG(LogMumble, Error, TEXT("Could not wire the default voice's graph."));
+		UE_LOG(LogMumble, Error, TEXT("Could not wire the voice graph."));
+		return nullptr;
+	}
+
+	return Builder;
+}
+
+USoundBase* UMumbleSubsystem::BuildDefaultSound()
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(MumbleSubsystem::BuildDefaultSound);
+
+	UMetaSoundSourceBuilder* Builder = CreateVoiceGraph(TEXT("MumbleDefaultVoice"));
+	if (!Builder)
+	{
 		return nullptr;
 	}
 

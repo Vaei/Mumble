@@ -1,0 +1,29 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0.0",
+	"FriendlyName": "Mumble",
+	"Description": "Mumbled character speech synthesised from dialogue text in a MetaSound. Data-driven voices, any typewriter.",
+	"Category": "Audio",
+	"CreatedBy": "Jared Taylor (Vaei)",
+	"CreatedByURL": "https://vaei.github.io/",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "Mumble",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "Metasound",
+			"Enabled": true
+		}
+	]
+}

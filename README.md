@@ -4,6 +4,8 @@ Characters mumble along with their dialogue as it types out: a voice synthesised
 
 To hear every shipped voice, run the `Mumble.Render` automation test (**Tools > Session Frontend > Automation**) and open the WAVs it writes to `Saved/Mumble/`.
 
+UE5.8+
+
 ## Get it working
 
 1. Enable the **Mumble** plugin. It needs **Metasound**, which it enables.
